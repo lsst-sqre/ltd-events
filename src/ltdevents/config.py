@@ -99,6 +99,13 @@ class Configuration:
     Set with the ``SAFIR_KAFKA_CLIENT_KEY`` environment variable.
     """
 
+    kafka_broker_url: str = os.getenv("SAFIR_KAFKA_BROKER_URL")
+    """The URL of the Kafka broker without the scheme
+    (e.g. ``localhost:9092``).
+
+    Set with the ``SAFIR_KAFKA_BROKER_URL`` environment variable.
+    """
+
 
 def get_env_optional_path(envvar: str) -> Optional[Path]:
     """Get a path from an environment variable, falling back if it does not
