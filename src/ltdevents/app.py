@@ -3,6 +3,7 @@
 __all__ = ["create_app"]
 
 from aiohttp import web
+from safir.events import configure_kafka_ssl
 from safir.http import init_http_session
 from safir.logging import configure_logging
 from safir.metadata import setup_metadata
@@ -27,6 +28,7 @@ def create_app() -> web.Application:
     setup_middleware(root_app)
     root_app.add_routes(init_internal_routes())
     root_app.cleanup_ctx.append(init_http_session)
+    root_app.cleanup_ctx.append(configure_kafka_ssl)
 
     sub_app = web.Application()
     setup_middleware(sub_app)
