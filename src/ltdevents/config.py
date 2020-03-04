@@ -11,7 +11,7 @@ __all__ = ["Configuration"]
 
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from typing import Optional, Sequence
 
 
 @dataclass
@@ -24,7 +24,13 @@ class Configuration:
     Set with the ``SAFIR_NAME`` environment variable.
     """
 
-    profile: str = os.getenv("SAFIR_PROFILE", "development")
+    profile: str = field(
+        default_factory=lambda: get_env_str_choices(
+            "SAFIR_PROFILE",
+            default="development",
+            choices=["development", "production"],
+        )
+    )
     """Application run profile: "development" or "production".
 
     Set with the ``SAFIR_PROFILE`` environment variable.
@@ -42,7 +48,13 @@ class Configuration:
     Set with the ``SAFIR_LOG_LEVEL`` environment variable.
     """
 
-    kafka_protocol: str = os.getenv("SAFIR_KAFKA_PROTOCOL", "SSL")
+    kafka_protocol: str = field(
+        default_factory=lambda: get_env_str_choices(
+            "SAFIR_KAFKA_PROTOCOL",
+            default="PLAINTEXT",
+            choices=["PLAINTEXT", "SSL"],
+        )
+    )
     """The protocol used for communicating with Kafka brokers: SSL or
     PLAINTEXT.
 
@@ -111,3 +123,40 @@ def get_env_optional_path(envvar: str) -> Optional[Path]:
         return None
     else:
         return Path(value)
+
+
+def get_env_str_choices(
+    envvar: str, *, default: str, choices: Sequence[str]
+) -> str:
+    """Get a string from an environment variable that must be from a set of
+    allowed choices.
+
+    Use this function in conjunction with ``default_factory`` for configuration
+    dataclasses.
+
+    Parameters
+    ----------
+    envvar : `str`
+        Name of an environment variable.
+    default : `str`
+        The default if the environment variable is not set.
+    choices : sequence of `str`
+        The allowed choices.
+
+    Returns
+    -------
+    value : `str`
+        A string, which must be one of the choices.
+
+    Raises
+    ------
+    RuntimeError
+        Raised if the value is not one of the choices.
+    """
+    value = os.getenv(envvar, default)
+    if value not in choices:
+        raise RuntimeError(
+            f"Value of environment variable {envvar} is not in allowed "
+            f"choices, {choices}. Value is {value}"
+        )
+    return value
