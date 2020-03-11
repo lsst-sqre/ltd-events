@@ -99,11 +99,45 @@ class Configuration:
     Set with the ``SAFIR_KAFKA_CLIENT_KEY`` environment variable.
     """
 
-    kafka_broker_url: str = os.getenv("SAFIR_KAFKA_BROKER_URL")
+    kafka_broker_url: Optional[str] = os.getenv("SAFIR_KAFKA_BROKER_URL")
     """The URL of the Kafka broker without the scheme
     (e.g. ``localhost:9092``).
 
     Set with the ``SAFIR_KAFKA_BROKER_URL`` environment variable.
+    """
+
+    schema_registry_url: Optional[str] = os.getenv("SAFIR_SCHEMA_REGISTRY_URL")
+    """The URL of the Confluence Schema Registry.
+
+    Set with the ``SAFIR_SCHEMA_REGISTRY_URL`` environment variable.
+    """
+
+    schema_suffix: str = os.getenv("SAFIR_SCHEMA_SUFFIX", "")
+    """A suffix for Avro schema names / Schema Registry subject names for
+    development and staging.
+
+    Leave as an empty string for production.
+
+    Set with the ``SAFIR_SCHEMA_SUFFIX`` environment variable.
+    """
+
+    schema_compatibility: str = os.getenv(
+        "SAFIR_SCHEMA_COMPATIBILITY", "FORWARD"
+    )
+    """The Schema Registry subject compatibility setting to use for schemas
+    registered by the app.
+
+    Allowed settings are:
+
+    - ``"BACKWARD"``
+    - ``"BACKWARD_TRANSITIVE"``
+    - ``"FORWARD"`` (default)
+    - ``"FORWARD_TRANSITIVE"``
+    - ``"FULL"``
+    - ``"FULL_TRANSITIVE"``
+    - ``"NONE"``
+
+    Set with the ``SAFIR_SCHEMA_SUFFIX`` environment variable.
     """
 
 
