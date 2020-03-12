@@ -19,4 +19,10 @@ update: update-deps init
 
 .PHONY: run
 run:
-	adev runserver --app-factory create_app src/ltdevents/app.py
+	docker-compose up -d
+	holdup -t 60 -T 5 -i 1 -n --insecure http://localhost:8081/subjects
+	SAFIR_KAFKA_BROKER_URL=localhost:9092 SAFIR_SCHEMA_REGISTRY_URL=http://localhost:8081 adev runserver --app-factory create_app src/ltdevents/app.py
+
+.PHONY: stop
+stop:
+	docker-compose down
