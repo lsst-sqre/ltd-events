@@ -6,7 +6,7 @@ import pydantic
 from aiohttp import web
 
 from ltdevents.handlers import internal_routes
-from ltdevents.webhookmodels import parse_event
+from ltdevents.webhookmodels import EditionUpdatedEvent, parse_event
 
 
 @internal_routes.post("/webhook")
@@ -31,5 +31,26 @@ async def post_webhook(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=400)
 
     logger.debug("Parsed webhook", webhookevent=event)
+
+    producer = request.config_dict["safir/kafka_producer"]
+    schema_manager = request.config_dict["safir/schema_manager"]
+
+    if event.event_type == "edition.updated":
+        assert isinstance(event, EditionUpdatedEvent)
+
+        key_bytes = await schema_manager.serialize(
+            data={
+                "product_slug": event.product.slug,
+                "edition_slug": event.edition.slug,
+            },
+            subject="ltd.edition_key_v1",
+        )
+        value_bytes = await schema_manager.serialize(
+            data=event.dict(), subject="ltd.edition_update_v1"
+        )
+
+        await producer.send_and_wait(
+            "ltd_events", key=key_bytes, value=value_bytes
+        )
 
     return web.Response(status=200)
