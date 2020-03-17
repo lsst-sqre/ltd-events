@@ -140,6 +140,12 @@ class Configuration:
     Set with the ``SAFIR_SCHEMA_SUFFIX`` environment variable.
     """
 
+    events_kafka_topic: str = os.getenv("LTD_EVENTS_KAFKA_TOPIC", "ltd.events")
+    """The name of the Kafka topic for messages produced by LTD Events.
+
+    Set with the ``LTD_EVENTS_KAFKA_TOPIC``.
+    """
+
 
 def get_env_optional_path(envvar: str) -> Optional[Path]:
     """Get a path from an environment variable, falling back if it does not
