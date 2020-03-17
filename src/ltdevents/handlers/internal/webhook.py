@@ -34,6 +34,7 @@ async def post_webhook(request: web.Request) -> web.Response:
 
     producer = request.config_dict["safir/kafka_producer"]
     schema_manager = request.config_dict["safir/schema_manager"]
+    kafka_topic = request.config_dict["safir/config"].events_kafka_topic
 
     if event.event_type == "edition.updated":
         assert isinstance(event, EditionUpdatedEvent)
@@ -50,7 +51,7 @@ async def post_webhook(request: web.Request) -> web.Response:
         )
 
         await producer.send_and_wait(
-            "ltd_events", key=key_bytes, value=value_bytes
+            kafka_topic, key=key_bytes, value=value_bytes
         )
 
     return web.Response(status=200)
