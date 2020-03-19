@@ -20,6 +20,7 @@ async def post_webhook(request: web.Request) -> web.Response:
     we trust the payloads. The next step will be to add payload verification.
     """
     logger = request["safir/logger"]
+    logger.debug("New webhook event")
     payload = await request.json()
     try:
         event = parse_event(payload=payload, logger=logger)
@@ -52,6 +53,12 @@ async def post_webhook(request: web.Request) -> web.Response:
 
         await producer.send_and_wait(
             kafka_topic, key=key_bytes, value=value_bytes
+        )
+        logger.debug(
+            "Sent Kafka message",
+            event_type="edition.updated",
+            product=event.product.slug,
+            edition=event.edition.slug,
         )
 
     return web.Response(status=200)
