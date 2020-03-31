@@ -45,10 +45,10 @@ async def post_webhook(request: web.Request) -> web.Response:
                 "product_slug": event.product.slug,
                 "edition_slug": event.edition.slug,
             },
-            subject="ltd.edition_key_v1",
+            name="ltd.edition_key_v1",
         )
         value_bytes = await schema_manager.serialize(
-            data=event.dict(), subject="ltd.edition_update_v1"
+            data=event.dict(), name="ltd.edition_update_v1"
         )
 
         await producer.send_and_wait(
