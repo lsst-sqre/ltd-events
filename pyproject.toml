@@ -1,8 +1,8 @@
 [build-system]
 requires = [
-  "setuptools>=42",
-  "wheel",
-  "setuptools_scm[toml]>=3.4"
+    "setuptools>=42",
+    "wheel",
+    "setuptools_scm[toml]>=3.4"
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -19,8 +19,16 @@ description = Run pytest against {envname}.
 deps =
     -r{toxinidir}/requirements/main.txt
     -r{toxinidir}/requirements/dev.txt
+whitelist_externals =
+    docker-compose
+setenv =
+    SAFIR_KAFKA_BROKER_URL=localhost:9092
+    SAFIR_SCHEMA_REGISTRY_URL=http://localhost:8081
 commands =
+    docker-compose up -d
+    holdup -t 60 -T 5 -i 1 -n --insecure http://localhost:8081/subjects
     coverage run -m pytest {posargs}
+    docker-compose down
 
 [testenv:coverage-report]
 description = Compile coverage from each test run.
@@ -91,7 +99,8 @@ exclude = '''
 # Multi-line strings are implicitly treated by black as regular expressions
 
 [tool.isort]
+include_trailing_comma = true
 multi_line_output = 3
 known_first_party = "ltdevents"
-known_third_party = ["aiohttp", "click", "safir", "setuptools"]
+known_third_party = ["aiohttp", "click", "kafkit", "pydantic", "safir", "setuptools", "structlog"]
 skip = ["docs/conf.py"]
