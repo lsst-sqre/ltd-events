@@ -3,7 +3,7 @@ kind: Kustomization
 
 images:
   - name: lsstsqre/ltdevents
-    newTag: 0.0.0
+    newTag: 0.1.0
 
 resources:
   - configmap.yaml
